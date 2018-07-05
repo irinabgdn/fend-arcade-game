@@ -109,7 +109,7 @@ class Player {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 
         // Draw information about player on canvas - level and lives
-        ctx.font = "1.2em 'Lato', sans-serif";
+        ctx.font = "1em 'Lato', sans-serif";
         ctx.fillText('Level ' + this.level, 15, 30);
         ctx.fillText('You have ' + this.lives + ' lives left.', 345, 30, 200);
     }
