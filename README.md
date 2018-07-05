@@ -1,5 +1,4 @@
 ## frontend-nanodegree-arcade-game
-===============================
 
 # Irina's Frogger - a classic arcade game
 
