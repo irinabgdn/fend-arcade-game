@@ -236,6 +236,11 @@ generateEnemies(1);
 // Place the player object in a variable called player
 const player = new Player(202, 404);
 
+// Display instructions when game starts
+let instructions = document.getElementById('instructionsDialog');
+instructions.showModal();
+document.addEventListener('click', closeModal(instructions), {once: true});
+
 /* This listens for key presses and sends the keys to your
 * Player.handleInput() method. You don't need to modify this.
 */
