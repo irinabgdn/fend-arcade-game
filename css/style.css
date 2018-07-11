@@ -5,8 +5,17 @@ body {
 }
 
 .modal {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    width: 400px;
+    max-height: 400px;
+    z-index: 0;
+    margin-left: -220px;
     border: 6px;
+    padding: 20px;
     border-color: #444;
     border-radius: 10px;
     background-color: #fff;
+    text-align: center;
 }

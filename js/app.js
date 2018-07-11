@@ -1,14 +1,42 @@
-// Possible locations for enemies
+/*
+* Set GAME ALERTS
+* Win / lose one level
+* Win / lose the whole game
+*/
+const gameAlerts = [ {state: "winlevel", alert: "Keep doing what you're doing, you passed one level!"},
+            {state: "loselevel", alert: ":( You lose one life"},
+            {state: "wingame", alert: "Congrats! You won! Click refresh to restart game"},
+            {state: "losegame", alert: "The End... Click refresh to restart game"}
+];
+
+
+let popUp = document.getElementById('pop-up');
+
+// 
+function displayAlert() {
+    // Stop all enemies
+    allEnemies.forEach(element => {
+        element.speed = 0;
+    });
+
+    // Show pop-up
+    popUp.style.display = 'block';
+
+    // Set pop-up alert text depending on the game state
+    let i = 0;
+    while (player.state != gameAlerts[i].state) { i++ };
+    popUp.innerHTML = gameAlerts[i].alert;
+}
+
+// Define possible locations for enemies
 const enemiesX = [-120, -60, 0, 60, 120, 180, 240, 300, 360, 420];
 const enemiesY = [65, 145, 225];
 
-// Enemies our player must avoid
+// Class of enemies objects
 class Enemy {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
     constructor () {
         // The image/sprite for our enemies, this uses
-        // a helper we've provided to easily load images
+        // a helper Udacity provided to easily load images
         this.sprite = 'images/enemy-bug.png';
 
         // Generate random position and speed of enemy
@@ -20,8 +48,8 @@ class Enemy {
     // Update the enemy's position, required method for game
     // Parameter: dt, a time delta between ticks
     update (dt) {
-    // Multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
+    // Multiply any movement by the dt parameter which 
+    // will ensure the game runs at the same speed for
     // all computers.
         this.x += this.speed * dt;
         //
@@ -29,7 +57,6 @@ class Enemy {
             this.x = -120;
         }
     }
-
     
     // Draw the enemy on the screen, required method for game
     render() {
@@ -37,26 +64,27 @@ class Enemy {
     }
 };
 
-/* Generate number of enemies depending on level. 
- * For the first 3 levels there are 4 enemies onscreen. 
- * For levels greater than 3, the number of enemies is
- * equal to the number of levels reached.
- */ 
+// Generate number of enemies depending on level. 
 function generateEnemies(level) {
+    // Clear the array of enemies
     allEnemies = [];
     let count;
-    if (level > 4) {
-        count = level;
-    } else {
+    if (level < 4 || level === undefined) {
+        // For the first 3 levels there are 4 enemies onscreen. 
         count = 4;
+    } else {
+        /*For levels greater than 3, the number of enemies is
+        * equal to the number of levels reached. */
+        count = level;
     }
+    // Initialize enemy objects in the array
     for (let i = 0; i < count; i++) {
         allEnemies.push(new Enemy());
     }
 };
 
 /* Define Player 
-* keys: x, y, level, lives
+* keys: x, y, level, lives, state
 * methods: update(), render(), handleInput(), win(), lose()
 */
 class Player {
@@ -66,17 +94,15 @@ class Player {
         this.y = 404;
         this.level = 1;
         this.lives = 6;
+        this.state = 'start';
     }
 
     /* Set a new position (x, y) to the player and check if the
-    * new position is off-screen. 
-    * If position off-screen left/right, the player enters on-screen 
-    * on the opposite part. If postition off-screen down, the player
-    * remains on-screen. If position top, player wins.
+    * new position is off-screen or any enemy hits the player.
     */
-   
     update(x, y) {
-        
+        /* If position off-screen left/right, the player enters on-screen 
+        * on the opposite part. */
         if (this.x <= -32) {
             this.x = 404;
         };
@@ -85,15 +111,17 @@ class Player {
             this.x = 0;
         };
 
+        // If postition off-screen down, the player remains on-screen
         if (this.y >= 400) {
             this.y = 400;
         }; 
 
+        // If position top, player wins.
         if (this.y <= 0) {
             this.win();
         }
 
-        // Check for collision with any enemy
+        // If player collides with any enemy, player loses.
         allEnemies.forEach(element => {
             if (Math.abs(this.x - element.x) < 80 
                 && Math.abs(this.x -element.x) > 0 
@@ -114,10 +142,9 @@ class Player {
         ctx.fillText('You have ' + this.lives + ' lives left.', 345, 30, 200);
     }
 
-    /* Move player one column or one row in the direction 
-    * indicated by the pressed key.
-    */ 
+    // Handle keyboard events for player object 
     handleInput(key) {
+
         switch (key) {
             case 'left':
                 // Move one column-width left
@@ -138,13 +165,21 @@ class Player {
                 // Move one row-height down
                 this.update(this.y += 83);
                 break;
+
+            case 'spacebar':
+                // Exit pop-up and start new game
+                if (this.state != 'play') {
+                    this.state = 'play';
+                    // Hide alert
+                    popUp.style.display = 'none';
+
+                    // Initialize enemies depending on level
+                    generateEnemies(this.level);
+                }
         };
     }
 
-    /* This method displays a win message, upgrades one level
-     * and sets the player to the initial position.
-     */
-
+    // WIN method
     win() {
         setTimeout(() => {
             // Set initial position to player
@@ -154,34 +189,25 @@ class Player {
             // Upgrade one level
             this.level ++;
 
-            // Stop all enemies
-            allEnemies.forEach(element => {
-                element.speed = 0;
-            });
+            // Win the game if 10 lives are reached
+            if (this.level === 10) {
+                // Win game pop-up alert
+                this.state = 'wingame';
+                displayAlert();
 
-            // WIN the game if 8 lives are reached
-            if (this.level === 8) {
-                let winGame = document.getElementById('winGameDialog');
-                winGame.showModal();
-                
+                // Remove keys that handle event on player objet
+                // so that the game freezes at the end
+                allowedKeys = [];
             } else {
-                // Display win message and then close it on click
-                let winModal = document.getElementById('winDialog');
-                winModal.showModal();
-
-                // Close win message when a key is pressed or mouse click
-
-                document.addEventListener('click', closeModal(winModal), {once: true});
-                document.addEventListener('keypress', closeModal(winModal), {once: true});
+                // Win level pop-up alert
+                this.state = 'winlevel';
+                displayAlert();
             }
-            // Render player onscreen
-            this.render();
+
         });
     }
 
-    /* This method displays a lose message, downgrades one life
-     * and sets the player to the initial position.
-     */
+    // LOSE method
     lose() {
         setTimeout(() => {
             // Set initial position to player
@@ -191,66 +217,43 @@ class Player {
             // Decrease one life
             this.lives --;
 
-            // Stop all enemies
-            allEnemies.forEach(element => {
-                element.speed = 0;
-            });
-
             // Check if there are lives left 
             if (this.lives > 0) {
-                // Display lose message
-                let loseModal = document.getElementById('loseDialog');
-                loseModal.showModal();
+                // Lose one life
+                this.state = 'loselevel';
+                displayAlert();
 
-                // Close lose message when a key is pressed or mouse click
-                document.addEventListener('click', closeModal(loseModal), {once: true});
-                document.addEventListener('keypress', closeModal(loseModal), {once: true});
+            } else if (this.lives <= 0) { 
+                // Lose game if no lives left
+                this.state = 'losegame';
+                displayAlert();
 
-                // Render player onscreen
-                this.render();     
-            } else if (this.lives <= 0) { // LOSE game if no lives left
-                this.level = 0;
-                this.lives = 0;
-                let endModal = document.getElementById('endGameDialog'); 
-                endModal.showModal();
-                // delete player;
+                // Remove keys that handle event on player objet
+                // so that the game freezes at the end
+                allowedKeys = [];
             };
         });
     } 
 };
 
-/* Regenerate enemies when modal is closed 
-* The number of enemies is the same as the level reached
-*/
-function closeModal(modal) {
-    modal.close();
-
-    generateEnemies(player.level);
-}
-
 // Instantiate enemy objects in a set called allEnemies
 let allEnemies = [];
-
-generateEnemies(1);
 
 // Place the player object in a variable called player
 const player = new Player(202, 404);
 
-// Display instructions when game starts
-let instructions = document.getElementById('instructionsDialog');
-instructions.showModal();
-document.addEventListener('click', closeModal(instructions), {once: true});
 
 /* This listens for key presses and sends the keys to your
 * Player.handleInput() method. You don't need to modify this.
 */
+var allowedKeys = {
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    32: 'spacebar'
+};
 document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
-
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
