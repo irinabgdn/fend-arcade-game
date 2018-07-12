@@ -148,22 +148,22 @@ class Player {
         switch (key) {
             case 'left':
                 // Move one column-width left
-                this.update(this.x -= 101); 
+                this.x -= 101; 
                 break;
 
             case 'right':
                 // Move one column-width right
-                this.update(this.x += 101);
+                this.x += 101;
                 break;
             
             case 'up':
                 // Move one row-height top
-                this.update(this.y -= 83);
+                this.y -= 83;
                 break;
             
             case 'down':
                 // Move one row-height down
-                this.update(this.y += 83);
+                this.y += 83;
                 break;
 
             case 'spacebar':
@@ -181,7 +181,6 @@ class Player {
 
     // WIN method
     win() {
-        setTimeout(() => {
             // Set initial position to player
             this.x = 202;
             this.y = 404;
@@ -203,13 +202,10 @@ class Player {
                 this.state = 'winlevel';
                 displayAlert();
             }
-
-        });
     }
 
     // LOSE method
     lose() {
-        setTimeout(() => {
             // Set initial position to player
             this.x = 202;
             this.y = 404;
@@ -232,7 +228,6 @@ class Player {
                 // so that the game freezes at the end
                 allowedKeys = [];
             };
-        });
     } 
 };
 
