@@ -9,10 +9,9 @@ const gameAlerts = [ {state: "winlevel", alert: "Keep doing what you're doing, y
             {state: "losegame", alert: "The End... Click refresh to restart game"}
 ];
 
-
+// Alerts 
 let popUp = document.getElementById('pop-up');
 
-// 
 function displayAlert() {
     // Stop all enemies
     allEnemies.forEach(element => {
@@ -144,39 +143,40 @@ class Player {
 
     // Handle keyboard events for player object 
     handleInput(key) {
+        if (this.state === 'play') {
+            switch (key) {
+                case 'left':
+                    // Move one column-width left
+                    this.x -= 101; 
+                    break;
+    
+                case 'right':
+                    // Move one column-width right
+                    this.x += 101;
+                    break;
+                
+                case 'up':
+                    // Move one row-height top
+                    this.y -= 83;
+                    break;
+                
+                case 'down':
+                    // Move one row-height down
+                    this.y += 83;
+                    break;
+            }
+        } else {
+            // Exit pop-up and start new game
+            if (key === 'spacebar') {
 
-        switch (key) {
-            case 'left':
-                // Move one column-width left
-                this.x -= 101; 
-                break;
+                this.state = 'play';
+                // Hide alert
+                popUp.style.display = 'none';
 
-            case 'right':
-                // Move one column-width right
-                this.x += 101;
-                break;
-            
-            case 'up':
-                // Move one row-height top
-                this.y -= 83;
-                break;
-            
-            case 'down':
-                // Move one row-height down
-                this.y += 83;
-                break;
-
-            case 'spacebar':
-                // Exit pop-up and start new game
-                if (this.state != 'play') {
-                    this.state = 'play';
-                    // Hide alert
-                    popUp.style.display = 'none';
-
-                    // Initialize enemies depending on level
-                    generateEnemies(this.level);
-                }
-        };
+                // Initialize enemies depending on level
+                generateEnemies(this.level);
+            }
+        }
     }
 
     // WIN method
@@ -248,6 +248,7 @@ var allowedKeys = {
     40: 'down',
     32: 'spacebar'
 };
+
 document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
